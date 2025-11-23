@@ -9,12 +9,28 @@ export default function Home() {
         Selamat datang di situs tutorial Golang. Silakan mulai dari dasarnya.
       </p>
 
-      <Link
-        to="/install-golang"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Mulai Belajar Golang →
-      </Link>
+      <div className="flex flex-col gap-3">
+        <Link
+          to="/install-golang"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Mulai Belajar Golang →
+        </Link>
+
+        <Link
+          to="/create-project"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Tutorial Buat Project →
+        </Link>
+
+        <Link
+          to="/env-database"
+          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 mt-3 block"
+        >
+          Tutorial Setup ENV Database →
+        </Link>
+      </div>
     </div>
   );
 }

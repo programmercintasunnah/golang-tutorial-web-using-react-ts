@@ -1,74 +1,161 @@
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+📦 1. Install Golang
+Linux
+```
+wget https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Cek versi
 ```
-# golang-tutorial-web-using-react-ts
+go version
+```
+
+📁 2. Membuat Project Golang Baru
+```
+mkdir pre-tes-nbs
+cd pre-tes-nbs
+go mod init pre-tes-nbs
+code .
+```
+
+Buat file main.go:
+```
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("cek cek")
+}
+```
+
+Jalankan:
+```
+go run main.go
+```
+
+🗄️ 3. Setup DB Migration dengan DBMate
+Install DBMate (Ubuntu)
+```
+sudo apt install dbmate
+```
+Buat folder migrasi
+DBMate otomatis membuat folder:
+```
+db/migrations
+```
+Membuat migration baru
+```
+dbmate new create_product_table
+```
+
+Hasilnya contoh:
+```
+db/migrations/20251123073716_create_product_table.sql
+```
+
+Isi contoh migration:
+```
+-- migrate:up
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    price INT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- migrate:down
+DROP TABLE IF EXISTS products;
+```
+
+🧩 4. Membuat Folder dan File Koneksi Database
+
+Buat folder:
+```
+db/connection/index.go
+```
+
+Isi:
+```
+package connection
+
+import (
+    "database/sql"
+    "fmt"
+    "os"
+
+    _ "github.com/lib/pq"
+)
+
+var (
+    host     = os.Getenv("DB_HOST")
+    port     = os.Getenv("DB_PORT")
+    dbName   = os.Getenv("DB_NAME")
+    user     = os.Getenv("DB_USER")
+    password = os.Getenv("DB_PASSWORD")
+    sslMode  = os.Getenv("DB_SSLMODE")
+    schema   = os.Getenv("DB_SCHEMA")
+)
+
+func ConnectDB() (*sql.DB, error) {
+
+    dsn := fmt.Sprintf(
+        "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s search_path=%s",
+        host, port, user, password, dbName, sslMode, schema,
+    )
+
+    db, err := sql.Open("postgres", dsn)
+    if err != nil {
+        return nil, err
+    }
+
+    if err := db.Ping(); err != nil {
+        return nil, err
+    }
+
+    fmt.Println("Database connected successfully")
+    return db, nil
+}
+```
+
+🔐 5. Buat .env
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=syirkah_data
+DB_USER=postgres
+DB_PASSWORD=password123
+DB_SSLMODE=disable
+DB_SCHEMA=public
+```
+
+🧪 6. Coba Koneksi dari main.go
+
+Edit main.go:
+```
+package main
+
+import (
+    "log"
+    "pre-tes-nbs/db/connection"
+)
+
+func main() {
+    _, err := connection.ConnectDB()
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+```
+
+Jalankan:
+```
+go run main.go
+```
+
+Jika berhasil:
+```
+Database connected successfully
+```
